@@ -1,19 +1,23 @@
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 import requests
 import itertools
 import argparse
+import os
+from tenacity import retry, stop_after_attempt, wait_random
+
 
 # Function to download files from web
+@retry(stop=stop_after_attempt(3), wait=wait_random(min=1, max=5))
 def download_file(url):
+    Path(args.destination).mkdir(parents=True, exist_ok=True)
     response = requests.get(url)
-    status_code = response.status_code
-    filename = url.split("/")[-1]
-    if response.status_code == 200:
-        with open(f"{args.destination}{filename}", mode="wb") as file:
-            file.write(response.content)
-        print(f"{filename} Downloaded")
-    else:
-        print(f"{filename} Error status_code {response.status_code}") 
+    response.raise_for_status()
+    filename = os.path.join(args.destination, url.split("/")[-1])
+    with open(filename, mode="wb") as file:
+        file.write(response.content)
+    print(f"{filename} Downloaded")
+
 
 # Function to get user input for a list of items
 def get_input(prompt, items, default=None):
@@ -25,7 +29,7 @@ def get_input(prompt, items, default=None):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-d", "--destination", help="where to store downloaded file", default="")
+parser.add_argument("-d", "--destination", help="where to store downloaded file", default="downloads")
 args = parser.parse_args()
 
 # Initialize empty lists for each item
