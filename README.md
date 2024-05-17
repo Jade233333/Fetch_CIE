@@ -15,7 +15,7 @@ pip install -m requirements.txt
 ## Use
 Run the python file
 ```
-python fetch_CIE.py
+python fetch_CIE.py -d <location to download(./downloads) as default>
 ```
 
 Input required in formation on the console
