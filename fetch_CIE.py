@@ -27,9 +27,12 @@ def get_input(prompt, items, default=None):
     elif default is not None:
         items.append(default)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--destination", help="where to store downloaded file", default="downloads")
+    parser.add_argument("-d", "--destination",
+                        help="where to store downloaded file",
+                        default="downloads")
     args = parser.parse_args()
 
 # Initialize empty lists for each item
@@ -45,14 +48,16 @@ if __name__ == "__main__":
     get_input("Enter season(s) (default s): ", seasons, "s")
     get_input("Enter year(s) (default 23): ", years, "23")
     get_input("Enter paper type(s) (default qp): ", paper_types, "qp")
-    get_input("Enter component number(s) (default 2): ",component_numbers, "2")
+    get_input("Enter component number(s) (default 2): ",
+              component_numbers, "2")
     get_input("Enter time zone(s) (default 1): ", time_zones, "1")
 
 # URL template
     url_template = "https://cie.fraft.cn/obj/Fetch/redir/{}_{}{}_{}_{}{}.pdf"
 
 # Generate URLs using itertools.product
-    urls = [url_template.format(*combo) for combo in itertools.product(codes, seasons, years, paper_types, component_numbers, time_zones)]
+    urls = [url_template.format(*combo) for combo in itertools.product(
+        codes, seasons, years, paper_types, component_numbers, time_zones)]
     print(urls)
 
 # Use multi-treading to download the files
