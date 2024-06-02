@@ -58,7 +58,6 @@ if __name__ == "__main__":
 # Generate URLs using itertools.product
     urls = [url_template.format(*combo) for combo in itertools.product(
         codes, seasons, years, paper_types, component_numbers, time_zones)]
-    print(urls)
 
 # Use multi-treading to download the files
     with ThreadPoolExecutor() as executor:
