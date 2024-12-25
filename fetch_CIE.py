@@ -44,7 +44,7 @@ def generate_urls(
         paper_types,
         component_numbers,
         time_zones):
-    url_template = "https://cie.fraft.cn/obj/Fetch/redir/{}_{}{}_{}_{}{}.pdf"
+    url_template = "https://cie.fraft.cn/obj/Common/Fetch/redir/{}_{}{}_{}_{}{}.pdf"
     return [url_template.format(*combo) for combo in itertools.product(
         codes, seasons, years, paper_types, component_numbers, time_zones)]
 
@@ -105,4 +105,3 @@ if __name__ == "__main__":
         print("\nFailed Downloads:")
         for url in failed_downloads:
             print(url)
-
