@@ -1,0 +1,21 @@
+codes:
+  - 9701
+  - 9702
+  - 9700
+seasons:
+  - s
+  - w
+  - m
+years:
+  - 24
+  - 23
+  - 22
+paper_types:
+  - ms
+  - qp
+component_numbers:
+  - 4
+time_zones:
+  - 1
+  - 2
+  - 3
