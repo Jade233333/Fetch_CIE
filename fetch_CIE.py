@@ -1,13 +1,13 @@
 import argparse
+import yaml
 import os
-from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 import itertools
+from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from tenacity import retry, stop_after_attempt, wait_random, RetryError
 
 
-# Function to download files from the web
 @retry(stop=stop_after_attempt(5), wait=wait_random(min=5, max=10))
 def download_file(url, destination):
     Path(destination).mkdir(parents=True, exist_ok=True)
@@ -27,57 +27,53 @@ def download_file_with_logging(url, destination):
         print(f"Failed to download {url} after multiple attempts.")
         return None
 
-# Function to get user input for a list of items
 
-
-def get_input(prompt, default=None):
-    user_input = input(prompt).strip()
-    return user_input.split() if user_input else [default]
-
-# Function to generate URLs based on user inputs
-
-
-def generate_urls(
-        codes,
-        seasons,
-        years,
-        paper_types,
-        component_numbers,
-        time_zones):
+def generate_urls(codes, seasons, years, paper_types, component_numbers, time_zones):
     url_template = "https://cie.fraft.cn/obj/Common/Fetch/redir/{}_{}{}_{}_{}{}.pdf"
-    return [url_template.format(*combo) for combo in itertools.product(
-        codes, seasons, years, paper_types, component_numbers, time_zones)]
+    return [
+        url_template.format(*combo)
+        for combo in itertools.product(
+            codes, seasons, years, paper_types, component_numbers, time_zones
+        )
+    ]
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--destination",
-                        help="Where to store downloaded files",
-                        default="downloads")
+    parser.add_argument(
+        "-d",
+        "--destination",
+        help="Where to store downloaded files",
+        default="downloads",
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        help="config file path",
+        default="config.yaml",
+    )
     args = parser.parse_args()
 
-    # Prompt user for input for each item
-    codes = get_input("Enter code(s) (default 9701): ", "9701")
-    seasons = get_input("Enter season(s) (default s): ", "s")
-    years = get_input("Enter year(s) (default 23): ", "23")
-    paper_types = get_input("Enter paper type(s) (default qp): ", "qp")
-    component_numbers = get_input(
-        "Enter component number(s) (default 2): ", "2")
-    time_zones = get_input("Enter time zone(s) (default 1): ", "1")
+    with open(args.config, "r") as file:
+        config = yaml.safe_load(file)
 
-    # Generate URLs using user inputs
-    urls = generate_urls(codes, seasons, years, paper_types,
-                         component_numbers, time_zones)
+    urls = generate_urls(
+        config["codes"],
+        config["seasons"],
+        config["years"],
+        config["paper_types"],
+        config["component_numbers"],
+        config["time_zones"],
+    )
 
     successful_downloads = []
     failed_downloads = []
 
-    # Use multi-threading to download the files
     with ThreadPoolExecutor() as executor:
-        futures = {executor.submit(
-            download_file_with_logging,
-            url,
-            args.destination): url for url in urls}
+        futures = {
+            executor.submit(download_file_with_logging, url, args.destination): url
+            for url in urls
+        }
         for future in as_completed(futures):
             url = futures[future]
             try:
